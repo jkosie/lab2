@@ -1,0 +1,163 @@
+---
+title: "Lab 2"
+author: "Jessica Kosie"
+date: "January 18, 2019"
+output: html_document
+---
+# Lab 2
+```{r}
+library(tidyverse); library(rio)
+```
+
+## 1. Load data from the web
+
+```{r}
+
+drinks <- rio::import("https://github.com/fivethirtyeight/data/raw/master/alcohol-consumption/drinks.csv", setclass = "tbl_df")
+
+```
+## 2. Explore the overall distribution of total alcohol consumed.
+
+### Histogram
+- play with the number of bins
+- settle on a number of bins and provide a brief justification in text
+```{r}
+
+# Start with default number of bins
+ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
+  geom_histogram() +
+  ggtitle("Histogram, defult bins")
+
+# Try out 100 bins
+ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
+  geom_histogram(bins = 100) +
+  ggtitle("Histogram, 100 bins")
+
+# Try out 10 bins
+ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
+  geom_histogram(bins = 10) +
+  ggtitle("Histogram, 10 bins")
+
+# Try out 20 bins
+ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
+  geom_histogram(bins = 20) +
+  ggtitle("Histogram, 20 bins")
+
+# Try out 50 bins
+ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
+  geom_histogram(bins = 50) +
+  ggtitle("Histogram, 50 bins")
+```
+
+#### I would choose to go with the default of 30 bins to get an accurate sense of the distribution. Values closer to 10 bins seems like too few to get a sense of the distribution while 100 bins seems like too many (with only about 2 entries per bin).
+
+### Density plot
+- compare the default bandwidth with a few other selections entered manually.
+- settle on a bandwidth selection, and justify why briefly in text 
+```{r}
+
+# Start with default bandwidth
+ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
+  geom_density() +
+  ggtitle("Density Plot, default bandwidth")
+
+# Try bandwidth = 100
+ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
+  geom_density(bw = 100) +
+  ggtitle("Density Plot, bandwidth = 100")
+
+# Try bandwidth = 10
+ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
+  geom_density(bw = 10) +
+  ggtitle("Density Plot, bandwidth = 10")
+
+# Try bandwidth = 50
+ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
+  geom_density(bw = 50) +
+  ggtitle("Density Plot, bandwidth = 50")
+
+# Try bandwidth = 1
+ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
+  geom_density(bw = 1) +
+  ggtitle("Density Plot, bandwidth = 1")
+
+# Try bandwidth = 5
+ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
+  geom_density(bw = 5) +
+  ggtitle("Density Plot, bandwidth = 5")
+
+# Try bandwidth = .1
+ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
+  geom_density(bw = .1) +
+  ggtitle("Density Plot, bandwidth = 0.1")
+
+# Try bandwidth = .5
+ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
+  geom_density(bw = .5) +
+  ggtitle("Density Plot, bandwidth = 0.5")
+
+# Try bandwidth = .75
+ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
+  geom_density(bw = .75) +
+  ggtitle("Density Plot, bandwidth = 0.75")
+
+```
+
+#### Values close to 0.1 seem to low because the line isn't smoothed very much, while higher values (greater than about 1) seem too smoothed and don't really give a sense of the distribution at all. If the goal of a density plot is to get a smoothed, continuous version of a histogram that illustrates where values are concentrated in the data, I think I'd go with a bindwidth of 0.75.
+
+## Reorganize the data so you have a type and servings column.
+```{r}
+# This part of the lab seems to focus only on Beer, Spirits, and Wine, so I removed the `total_litres_of_pure_alcohol` column. 
+drinks.gathered <- drinks %>% 
+  select(-total_litres_of_pure_alcohol) %>%  #get rid of total column
+  gather(key = "type", value = "servings", 2:4) %>% #gather to create type and servings columns
+  mutate(type = gsub('_[^_]*$', '', type)) #remove `_servings` from type column
+
+```
+## 1. Evaluate the distribution of servings by type using at least three different methods. Provide a brief substantive conclusion.
+
+### Method 1: histogram with fill representing each type (stacked bars)
+```{r}
+ggplot(drinks.gathered, aes(x = servings, fill = type)) +
+  geom_histogram(bins = 30) 
+```
+
+### Method 2: layered density plot
+```{r}
+ggplot(drinks.gathered, aes(x = servings, fill = type, col = type)) +
+  geom_density(bw = 5, alpha = 0.3)
+```
+
+### Method 3: separate histograms for each type
+```{r}
+ggplot(drinks.gathered, aes(x = servings, fill = type, col = type)) +
+  geom_histogram(bins = 30) +
+  facet_wrap(~type)
+```
+
+#### Regarding the different methods, I think that the layered density plot or separate histograms are preferable to the stacked histogram as the latter 2 are easier to interpret. To summarize the distribution, it looks like the most frequent number of servings per person tends to be 0 for beer, spirits, and wine. However, more countries fall into the 0 servings per person category for wine than for spirits and more countries fall into the 0 servings person category for spirits than for beer. The wine category in particular seems to be the most clustered toward the low end of number of servings per person than the spirits and beer categories. The beer category seems to have the most variability across countries in number of servings per person reported.
+
+
+## 2. Reproduce the following plot (see lab 2 instructions)
+```{r}
+# Get top 25 countries (sort by total alcohol and truncate)
+top25 <- drinks %>% 
+  arrange(desc(total_litres_of_pure_alcohol)) %>% 
+  slice(1:25)
+
+# Gather data
+top25.gathered <- top25 %>% 
+  select(-total_litres_of_pure_alcohol) %>%  #get rid of total column
+  gather(key = "type", value = "servings", 2:4) %>% #gather to create type and servings columns
+  mutate(type = str_to_title(gsub('_[^_]*$', '', type))) #remove `_servings` from type column and capitalize 
+
+# Create plot
+ggplot(data=top25.gathered, aes(x=country, y=servings)) +
+  geom_bar(stat="identity", fill = "cornflowerblue", alpha = .75) +
+  facet_wrap(~type) +
+  coord_flip() +
+  theme_minimal(base_size = 14) +
+  labs(title = "Countries with the highest alcohol consumption",
+       subtitle = "Top 25 countries displayed", x = "Country", y = "Total number of alcohol servings")
+
+```
