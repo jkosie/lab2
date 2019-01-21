@@ -26,7 +26,7 @@ drinks <- rio::import("https://github.com/fivethirtyeight/data/raw/master/alcoho
 # Start with default number of bins
 ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
   geom_histogram() +
-  ggtitle("Histogram, defult bins")
+  ggtitle("Histogram, default number of bins")
 
 # Try out 100 bins
 ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
@@ -49,7 +49,7 @@ ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
   ggtitle("Histogram, 50 bins")
 ```
 
-#### I would choose to go with the default of 30 bins to get an accurate sense of the distribution. Values closer to 10 bins seems like too few to get a sense of the distribution while 100 bins seems like too many (with only about 2 entries per bin).
+#### My first thought is to go with 50 bins to get an accurate sense of the distribution. Values closer to 10 bins seems like too few to get a sense of the distribution. 100 bins seems like too many (with only about 2 entries per bin), but the DataCamp lession suggested that if you have greater than 150 points, which we do here, 100 bins is appropriate. Ultimately, I guess I'd trust DataCamp and go with 100 bins.
 
 ### Density plot
 - compare the default bandwidth with a few other selections entered manually.
@@ -58,52 +58,53 @@ ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
 
 # Start with default bandwidth
 ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
-  geom_density() +
-  ggtitle("Density Plot, default bandwidth")
+  geom_density(alpha = 0.7, fill = "cornflowerblue") +
+  ggtitle("Density Plot, default bandwidth") 
 
 # Try bandwidth = 100
 ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
-  geom_density(bw = 100) +
+  geom_density(bw = 100, alpha = 0.7, fill = "cornflowerblue") +
   ggtitle("Density Plot, bandwidth = 100")
 
 # Try bandwidth = 10
 ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
-  geom_density(bw = 10) +
+  geom_density(bw = 10, alpha = 0.7, fill = "cornflowerblue") +
   ggtitle("Density Plot, bandwidth = 10")
 
 # Try bandwidth = 50
 ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
-  geom_density(bw = 50) +
+  geom_density(bw = 50, alpha = 0.7, fill = "cornflowerblue") +
   ggtitle("Density Plot, bandwidth = 50")
 
 # Try bandwidth = 1
 ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
-  geom_density(bw = 1) +
+  geom_density(bw = 1, alpha = 0.7, fill = "cornflowerblue") +
   ggtitle("Density Plot, bandwidth = 1")
 
 # Try bandwidth = 5
 ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
-  geom_density(bw = 5) +
+  geom_density(bw = 5, alpha = 0.7, fill = "cornflowerblue") +
   ggtitle("Density Plot, bandwidth = 5")
 
 # Try bandwidth = .1
 ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
-  geom_density(bw = .1) +
+  geom_density(bw = .1, alpha = 0.7, fill = "cornflowerblue") +
   ggtitle("Density Plot, bandwidth = 0.1")
 
 # Try bandwidth = .5
 ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
-  geom_density(bw = .5) +
+  geom_density(bw = .5, alpha = 0.7, fill = "cornflowerblue") +
   ggtitle("Density Plot, bandwidth = 0.5")
 
 # Try bandwidth = .75
 ggplot(drinks, aes(x = total_litres_of_pure_alcohol)) +
-  geom_density(bw = .75) +
-  ggtitle("Density Plot, bandwidth = 0.75")
+  geom_density(bw = .75, alpha = 0.7, fill = "cornflowerblue") +
+  ggtitle("Density Plot, bandwidth = 0.75") +
+  geom_rug(alpha = 0.5)
 
 ```
 
-#### Values close to 0.1 seem to low because the line isn't smoothed very much, while higher values (greater than about 1) seem too smoothed and don't really give a sense of the distribution at all. If the goal of a density plot is to get a smoothed, continuous version of a histogram that illustrates where values are concentrated in the data, I think I'd go with a bindwidth of 0.75.
+#### Values close to 0.1 seem to low because the line isn't smoothed very much, while higher values (greater than about 1) seem too smoothed and don't really give a sense of the distribution at all. If the goal of a density plot is to get a smoothed, continuous version of a histogram that illustrates where values are concentrated in the data, I think I'd go with a bindwidth of 0.75. I also like adding `geom_rug` as is suggested in the DataCamp module.
 
 ## Reorganize the data so you have a type and servings column.
 ```{r}
@@ -131,7 +132,7 @@ ggplot(drinks.gathered, aes(x = servings, fill = type, col = type)) +
 ### Method 3: separate histograms for each type
 ```{r}
 ggplot(drinks.gathered, aes(x = servings, fill = type, col = type)) +
-  geom_histogram(bins = 30) +
+  geom_histogram(bins = 100) +
   facet_wrap(~type)
 ```
 
