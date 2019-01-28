@@ -162,3 +162,24 @@ ggplot(data=top25.gathered, aes(x=country, y=servings)) +
        subtitle = "Top 25 countries displayed", x = "Country", y = "Total number of alcohol servings")
 
 ```
+# Suggested by Daniel:
+```{r}
+td <- drinks %>%
+  gather(type, servings, contains("servings")) %>%
+  mutate(type = gsub("_servings", "", type)) %>%
+  rename(tot = total_litres_of_pure_alcohol)
+
+td %>%
+  mutate(type = stringr::str_to_title(type)) %>%
+  arrange(desc(tot)) %>%
+  slice(1:(25*3)) %>%
+  ggplot(aes(fct_reorder(country, servings), servings)) +
+  geom_col(fill = "cornflowerblue",
+           alpha = 0.7) +
+  coord_flip() +
+  facet_wrap(~type) +
+  labs(x = "Country",
+       y = "Total number of alcohol servings",
+       title = "Countries with the highest alcohol consumption",
+       subtitle = "Top 25 countries displayed")
+```
